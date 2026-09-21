@@ -1,1043 +1,1014 @@
-Travel & Tourism — Machine Learning & MLOps Capstone
+# ✈️ Travel & Tourism — Machine Learning & MLOps
+
+<p align="center">
+  <b>An end-to-end Travel & Tourism machine learning project</b><br>
+  Flight Price Prediction • Gender Classification • Hotel Recommendation • Flask • Docker • Kubernetes • MLflow • Streamlit
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/Python-3.9+-3776AB?style=for-the-badge&logo=python&logoColor=white" alt="Python">
+  <img src="https://img.shields.io/badge/Scikit--Learn-ML-F7931E?style=for-the-badge&logo=scikit-learn&logoColor=white" alt="Scikit-learn">
+  <img src="https://img.shields.io/badge/Flask-REST_API-000000?style=for-the-badge&logo=flask&logoColor=white" alt="Flask">
+  <img src="https://img.shields.io/badge/Docker-Container-2496ED?style=for-the-badge&logo=docker&logoColor=white" alt="Docker">
+  <img src="https://img.shields.io/badge/Kubernetes-Deployment-326CE5?style=for-the-badge&logo=kubernetes&logoColor=white" alt="Kubernetes">
+  <img src="https://img.shields.io/badge/MLflow-Tracking-0194E2?style=for-the-badge&logo=mlflow&logoColor=white" alt="MLflow">
+  <img src="https://img.shields.io/badge/Streamlit-App-FF4B4B?style=for-the-badge&logo=streamlit&logoColor=white" alt="Streamlit">
+  <img src="https://img.shields.io/badge/Google-Colab-F9AB00?style=for-the-badge&logo=googlecolab&logoColor=white" alt="Google Colab">
+</p>
+
+---
+
+## 📌 Table of Contents
+
+- [Overview](#-overview)
+- [Project Objectives](#-project-objectives)
+- [System Architecture](#-system-architecture)
+- [Datasets](#-datasets)
+- [Machine Learning Models](#-machine-learning-models)
+  - [Flight Price Prediction](#1-flight-price-prediction)
+  - [Gender Classification](#2-gender-classification)
+  - [Hotel Recommendation](#3-hotel-recommendation)
+- [Model Results](#-model-results)
+- [MLOps & Deployment](#-mlops--deployment)
+  - [Flask API](#flask-rest-api)
+  - [Docker](#docker)
+  - [Kubernetes](#kubernetes)
+  - [MLflow](#mlflow)
+- [Streamlit Application](#-streamlit-application)
+- [Project Structure](#-project-structure)
+- [Google Colab Setup](#-google-colab-setup)
+- [Local Setup](#-local-setup)
+- [API Usage](#-api-usage)
+- [Kubernetes Deployment](#-kubernetes-deployment)
+- [Limitations & Future Improvements](#-limitations--future-improvements)
+- [MLOps Extension](#-mlops-extension)
+- [Key Learnings](#-key-learnings)
+
+---
+
+## 🚀 Overview
+
+This project applies machine learning and MLOps concepts to the **Travel & Tourism** domain using three connected datasets:
+
+- 👤 **Users**
+- ✈️ **Flights**
+- 🏨 **Hotels**
+
+The system addresses three different ML use cases:
+
+| Use Case | Type | Model | Main Output |
+|---|---|---|---|
+| Flight Price Prediction | Regression | Random Forest Regressor | Predicted flight price |
+| Gender Classification | Classification | Random Forest Classifier | Predicted gender class |
+| Hotel Recommendation | Recommendation / Clustering | K-Means | Recommended hotels |
+
+The project goes beyond model training by implementing model persistence, a Flask REST API, Docker packaging, Kubernetes deployment configuration, MLflow experiment tracking, and a Streamlit recommendation interface.
+
+---
+
+## 🎯 Project Objectives
+
+### Machine Learning
+- Build a regression model for flight price prediction.
+- Build a classification model for user gender.
+- Build a clustering-based hotel recommendation system.
+- Evaluate models using appropriate metrics.
+
+### Productionization
+- Save trained models using Joblib.
+- Serve the regression model through Flask.
+- Package the API with Docker.
+- Prepare Kubernetes deployment manifests.
+- Track experiments and models with MLflow.
+- Build a Streamlit interface for hotel recommendations.
+
+---
+
+## 🏗️ System Architecture
+
+```mermaid
+flowchart TD
+    A[Travel Data<br/>Flights / Users / Hotels] --> B[Data Exploration]
+    B --> C[Preprocessing & Feature Engineering]
 
-An end-to-end Travel & Tourism machine learning project covering flight price prediction, REST API serving, Docker containerization, Kubernetes deployment, MLflow experiment tracking, user gender classification, and hotel recommendation through a Streamlit application.
+    C --> D[Flight Price Regression]
+    C --> E[Gender Classification]
+    C --> F[Hotel Recommendation]
+
+    D --> G[RandomForestRegressor]
+    E --> H[RandomForestClassifier]
+    F --> I[K-Means Clustering]
+
+    G --> J[Joblib Model Artifact]
+    J --> K[Flask REST API]
+    K --> L[Docker]
+    L --> M[Kubernetes]
 
-The project is developed in Google Colab using three datasets:
+    G --> N[MLflow]
+    I --> O[Streamlit Application]
+```
 
-flights.csv
+> **Tip:** GitHub renders Mermaid diagrams in Markdown, making the architecture directly viewable from the repository.
 
-users.csv
+---
 
-hotels.csv
+## 📊 Datasets
 
-Project Overview
+### ✈️ Flights
 
-The goal of this project is to demonstrate how machine learning can be used for multiple travel-related use cases and how a trained model can be moved beyond a notebook into a deployable application.
+The notebook reports:
 
-The project contains three main machine learning tasks:
+- **271,888 records**
+- **10 original columns**
+- No missing values
 
-1. Flight Price Prediction
+| Column | Description |
+|---|---|
+| `travelCode` | Travel identifier |
+| `userCode` | User identifier |
+| `from` | Origin airport/location |
+| `to` | Destination |
+| `flightType` | Flight type/class |
+| `price` | Flight price — target |
+| `time` | Flight duration |
+| `distance` | Flight distance |
+| `agency` | Flight agency |
+| `date` | Flight date |
 
-A regression model predicts flight prices using route, flight type, agency, duration, distance, and date-derived features.
+### 👤 Users
 
-2. Gender Classification
+The notebook reports:
 
-A classification model predicts user gender from age and company information after removing unknown gender records.
+- **1,340 records**
 
-3. Hotel Recommendation
+| Column | Description |
+|---|---|
+| `code` | User identifier |
+| `company` | Associated company |
+| `name` | User name |
+| `gender` | Gender |
+| `age` | Age |
 
-A clustering-based recommendation system groups hotels according to hotel name, destination, stay duration, and price and uses those clusters to recommend hotels according to user preferences.
+### 🏨 Hotels
 
-Datasets
+The notebook reports:
 
-Flights Dataset
+- **40,552 records**
+- **8 columns**
+- No missing values
 
-The flights.csv dataset contains 271,888 records and 10 columns in the notebook.
+| Column | Description |
+|---|---|
+| `travelCode` | Travel identifier |
+| `userCode` | User identifier |
+| `name` | Hotel name |
+| `place` | Hotel location |
+| `days` | Number of stay days |
+| `price` | Price per day |
+| `total` | Total stay price |
+| `date` | Booking date |
 
-Column
+---
 
-Description
+# 🤖 Machine Learning Models
 
-travelCode
+## 1. ✈️ Flight Price Prediction
 
-Travel identifier
+### Objective
 
-userCode
+Predict flight prices from historical flight information.
 
-User identifier
+### Feature Engineering
 
-from
+The notebook performs:
 
-Flight origin
+**Categorical encoding**
+- `from`
+- `to`
+- `flightType`
+- `agency`
 
-to
+using one-hot encoding with `drop_first=True`.
 
-Flight destination
+**Date engineering**
+- `year`
+- `month`
+- `day`
+- `dayofweek`
 
-flightType
-
-Flight type/class
-
-price
-
-Flight price and regression target
-
-time
-
-Flight duration
-
-distance
-
-Flight distance
-
-agency
-
-Flight agency
-
-date
-
-Flight date
-
-The notebook reports no missing values in the flight dataset.
-
-Users Dataset
-
-The notebook loads users.csv with the following fields:
-
-Column
-
-Description
-
-code
-
-User identifier
-
-company
-
-User's company
-
-name
-
-User name
-
-gender
-
-Gender
-
-age
-
-Age
-
-The notebook reports 1,340 user records.
-
-Gender distribution before filtering:
-
-Male: 452
-
-Female: 448
-
-None: 440
-
-Records with gender = none are removed before classification, leaving 900 records.
-
-Hotels Dataset
-
-The notebook reports 40,552 hotel records across 8 columns.
-
-Important fields used for recommendation include:
-
-Column
-
-Description
-
-travelCode
-
-Travel identifier
-
-userCode
-
-User identifier
-
-name
-
-Hotel name
-
-place
-
-Hotel destination
-
-days
-
-Number of days
-
-price
-
-Price per day
-
-total
-
-Total stay price
-
-date
-
-Booking date
-
-The notebook reports no missing values in the hotel dataset.
-
-Project Architecture
-
-                  ┌──────────────────────┐
-                  │   Travel Datasets    │
-                  │ Flights / Users /    │
-                  │ Hotels               │
-                  └──────────┬───────────┘
-                             │
-                             ▼
-                  ┌──────────────────────┐
-                  │ Data Exploration &   │
-                  │ Preprocessing        │
-                  └──────────┬───────────┘
-                             │
-            ┌────────────────┼────────────────┐
-            │                │                │
-            ▼                ▼                ▼
-   ┌────────────────┐ ┌───────────────┐ ┌────────────────┐
-   │ Flight Price   │ │ Gender        │ │ Hotel          │
-   │ Regression     │ │ Classification│ │ Recommendation │
-   │ Random Forest  │ │ Random Forest │ │ K-Means        │
-   └───────┬────────┘ └───────────────┘ └───────┬────────┘
-           │                                    │
-           ▼                                    ▼
-   ┌────────────────┐                    ┌───────────────┐
-   │ MLflow         │                    │ Streamlit     │
-   │ Tracking       │                    │ Application   │
-   └───────┬────────┘                    └───────────────┘
-           │
-           ▼
-   ┌────────────────┐
-   │ Flask REST API │
-   └───────┬────────┘
-           │
-           ▼
-   ┌────────────────┐
-   │ Docker         │
-   └───────┬────────┘
-           │
-           ▼
-   ┌────────────────┐
-   │ Kubernetes     │
-   │ 3 Replicas     │
-   └────────────────┘
-
-1. Flight Price Prediction
-
-Objective
-
-Predict the price of a flight using historical flight data.
-
-Data Preprocessing
-
-The notebook performs the following preprocessing steps:
-
-Categorical Encoding
-
-One-hot encoding is applied to:
-
-from
-
-to
-
-flightType
-
-agency
-
-using:
-
-pd.get_dummies(..., drop_first=True)
-
-Date Processing
-
-The original date column is converted to datetime.
-
-Four additional features are extracted:
-
-year
-
-month
-
-day
-
-dayofweek
-
-Feature Selection
-
-The following columns are removed from the model input:
-
-price
-travelCode
-userCode
-date
+**Removed fields**
+- `travelCode`
+- `userCode`
+- `date`
 
 The target variable is:
 
+```text
 price
+```
 
-Train/Test Split
+### Train/Test Split
 
-The dataset is divided using:
-
-train_test_split(
-    X,
-    y,
-    test_size=0.2,
-    random_state=42
-)
-
-This produces:
-
-80% Training Data
-20% Testing Data
-
-Regression Model
-
-The project uses:
-
-RandomForestRegressor
+```text
+80% Training
+20% Testing
+```
 
 with:
 
-random_state=42
-
-Evaluation Metrics
-
-The model is evaluated using:
-
-Mean Absolute Error (MAE)
-
-Mean Squared Error (MSE)
-
-R-squared (R²)
-
-The notebook also generates an Actual vs. Predicted Flight Prices scatter plot with a perfect prediction reference line.
-
-The notebook's reported baseline shows approximately:
-
-MAE = 0.00
-MSE = 0.00
-R²  = 1.00
-
-Such performance is unusually high for a real-world prediction problem. The notebook itself identifies potential data leakage or dataset characteristics as reasons to investigate the result further. Cross-validation and evaluation on a genuinely unseen dataset are recommended before treating the model as production-ready.
-
-2. Model Persistence
-
-The trained Random Forest regression model is saved using joblib:
-
-random_forest_model.pkl
-
-This file is later loaded by the Flask API and Docker application.
-
-3. Flask REST API
-
-The trained regression model is exposed through a Flask REST API.
-
-Endpoint
-
-POST /predict
-
-The endpoint:
-
-Receives JSON data.
-
-Converts the request into a pandas DataFrame.
-
-Passes the input to the saved Random Forest model.
-
-Returns the predicted flight price as JSON.
-
-Example response:
-
-{
-  "prediction": 1434.38
-}
-
-API Port
-
-The Flask application runs on:
-
-5000
-
-The notebook starts Flask in a separate thread inside Google Colab.
-
-For external access from Colab, the notebook notes that a tunneling service such as ngrok may be required.
-
-Important implementation note
-
-The current Flask/Docker implementation assumes that the incoming API data already matches the feature structure expected by the trained model.
-
-The notebook itself notes that a production implementation should move the same preprocessing/feature-engineering logic into the API or save the feature schema alongside the model.
-
-4. Docker Containerization
-
-The notebook creates:
-
-requirements.txt
-Dockerfile
-app.py
-random_forest_model.pkl
-
-requirements.txt
-
-The generated requirements file contains:
-
-Flask
-joblib
-pandas
-scikit-learn
-
-Docker Image
-
-The Dockerfile uses:
-
-python:3.9-slim-buster
-
-The container:
-
-Creates /app as the working directory.
-
-Installs Python dependencies.
-
-Copies the trained model.
-
-Copies app.py.
-
-Exposes port 5000.
-
-Starts the Flask application.
-
-Build
-
-docker build -t flight-price-predictor .
-
-Run
-
-docker run -p 5000:5000 flight-price-predictor
-
-The notebook reports that Docker execution was not available in its environment, so the image must be built and run on a Docker-enabled machine, VM, or cloud environment.
-
-5. Kubernetes Deployment
-
-The project prepares Kubernetes configuration for scalable deployment.
-
-Deployment
-
-The notebook's Kubernetes design specifies:
-
-Deployment
-Replicas: 3
-Container Port: 5000
-Application: flight-price-predictor
-
-Three replicas allow multiple instances of the prediction service to run inside the cluster.
-
-Service
-
-The notebook creates:
-
-service.yaml
-
-with:
-
-Service Type: NodePort
-Port: 5000
-Target Port: 5000
-
-Apply Deployment
-
-kubectl apply -f deployment.yaml
-
-Apply Service
-
-kubectl apply -f service.yaml
-
-Verify
-
-kubectl get deployments
-kubectl get pods
-kubectl get services
-
-Kubernetes provides the deployment framework for running multiple instances of the model-serving application and managing them inside a cluster.
-
-6. MLflow Experiment Tracking
-
-MLflow is integrated into the regression training workflow.
-
-What is tracked?
-
-The notebook logs:
-
-Parameters
-
+```python
 random_state = 42
+```
 
-Metrics
+### Model
 
-MAE
+```python
+RandomForestRegressor(random_state=42)
+```
 
-MSE
+### Evaluation
 
-R²
+Metrics used:
 
-Model
+- MAE
+- MSE
+- R²
 
-The Random Forest model is logged using:
+The notebook reports:
 
-mlflow.sklearn.log_model(...)
+| Metric | Reported Result |
+|---|---:|
+| MAE | `0.00` |
+| MSE | `0.00` |
+| R² | `1.00` |
 
-The notebook registers the model as:
+> ⚠️ **Important:** The notebook itself flags this near-perfect performance as unusually strong and recommends checking for possible data leakage and validating on unseen data before interpreting it as production-level reliability.
 
-RandomForestFlightPricePredictor
+### Visualization
 
-MLflow UI
+The notebook generates an **Actual vs. Predicted Flight Prices** scatter plot with a perfect prediction line.
 
-The notebook launches MLflow on:
+---
 
-0.0.0.0:5001
+## 2. 👤 Gender Classification
 
-Command:
+### Objective
 
-mlflow ui --host 0.0.0.0 --port 5001
+Classify users into gender categories from the available user data.
 
-When using Google Colab or another remote environment, a tunneling mechanism may be required to access the UI from a browser.
-
-7. Gender Classification
-
-Objective
-
-Predict the user's gender from user-level information.
-
-Data Preparation
+### Preprocessing
 
 The notebook:
 
-Removes rows where gender is none.
+1. Removes `gender = none`.
+2. Encodes:
+   - `female → 0`
+   - `male → 1`
+3. Removes:
+   - `code`
+   - `name`
+4. One-hot encodes `company`.
+5. Uses the remaining user information for classification.
 
-Converts:
+### Model
 
-female → 0
+```python
+RandomForestClassifier(random_state=42)
+```
 
-male → 1
+### Evaluation
 
-Drops:
+Metrics:
 
-code
+- Accuracy
+- Precision
+- Recall
+- F1 Score
+- Confusion Matrix
 
+### Reported Results
+
+| Metric | Result |
+|---|---:|
+| Accuracy | `0.47` |
+| Precision | `0.55` |
+| Recall | `0.41` |
+| F1 Score | `0.47` |
+
+The notebook concludes that the current features provide weak predictive power for this classification task.
+
+> ⚠️ In real-world applications, inference involving gender should be handled carefully with appropriate privacy, fairness, and governance considerations.
+
+---
+
+## 3. 🏨 Hotel Recommendation
+
+### Objective
+
+Recommend hotels based on hotel characteristics and user-selected travel preferences.
+
+### Features
+
+The notebook uses:
+
+```text
 name
+place
+days
+price
+```
 
-One-hot encodes company.
+### Preprocessing
 
-Uses the remaining data as the classification feature set.
+**Categorical**
+- `name`
+- `place`
 
-The resulting features are primarily:
+→ One-hot encoding
 
-age
-company-related one-hot encoded features
+**Numerical**
+- `days`
+- `price`
 
-Classification Model
+→ StandardScaler
 
-The project uses:
+### Model
 
-RandomForestClassifier
+```python
+KMeans(
+    n_clusters=5,
+    random_state=42
+)
+```
 
-with:
+Each hotel receives a cluster label.
 
-random_state=42
+The notebook reports the largest cluster contains:
 
-The data is split using an 80/20 train-test split.
+```text
+12,618 hotel records
+```
 
-The notebook reports:
+### Recommendation Flow
 
-Training samples: 720
-Testing samples: 180
+```text
+User Preferences
+       ↓
+Encode Input
+       ↓
+Scale Numerical Features
+       ↓
+Predict K-Means Cluster
+       ↓
+Filter Hotels
+       ↓
+Apply Hotel/Destination Preferences
+       ↓
+Display Recommendations
+```
 
-Classification Metrics
+---
 
-The model is evaluated using:
+# 📈 Model Results
 
-Accuracy
+<details>
+<summary><b>Click to expand regression results</b></summary>
 
-Precision
+### Flight Price Regression
 
-Recall
+```text
+MAE = 0.00
+MSE = 0.00
+R²  = 1.00
+```
 
-F1 Score
+The result is based on the notebook's reported test evaluation and should be validated further because perfect predictive performance can indicate leakage or a highly deterministic dataset.
 
-Confusion Matrix
+</details>
 
-The notebook reports:
+<details>
+<summary><b>Click to expand classification results</b></summary>
 
+### Gender Classification
+
+```text
 Accuracy  = 0.47
 Precision = 0.55
 Recall    = 0.41
 F1 Score  = 0.47
+```
 
-The confusion matrix is also visualized with Seaborn.
+</details>
 
-The notebook concludes that the current features are weak predictors for this task and recommends additional feature engineering or different information sources.
+<details>
+<summary><b>Click to expand recommendation details</b></summary>
 
-8. Hotel Recommendation System
+### Hotel Recommendation
 
-Objective
+```text
+Algorithm: K-Means
+Clusters: 5
+Largest cluster: 12,618 records
+```
 
-Build a clustering-based hotel recommendation system using hotel attributes.
+</details>
 
-Features
+---
 
-The notebook selects:
+# ⚙️ MLOps & Deployment
 
-name
-place
-days
-price
+## Flask REST API
 
-Categorical Features
+The trained flight price model is exposed through Flask.
 
-The following are one-hot encoded:
+### Endpoint
 
-name
-place
+```http
+POST /predict
+```
 
-Numerical Features
+### Request
 
-The following are standardized using StandardScaler:
+The API receives model-ready feature data as JSON.
 
-days
-price
+Example:
 
-Recommendation Model
+```json
+{
+  "time": 1.76,
+  "distance": 676.53,
+  "from_Aracaju (SE)": 0,
+  "from_Brasilia (DF)": 0,
+  "to_Salvador (BH)": 1
+}
+```
 
-The notebook uses:
+### Response
 
-KMeans
+```json
+{
+  "prediction": 1434.38
+}
+```
 
-with:
+### API Port
 
-n_clusters = 5
-random_state = 42
+```text
+5000
+```
 
-Each hotel receives a:
+> The notebook explicitly notes that the initial API expects input to match the model's trained feature structure. A production implementation should move preprocessing into the API or load a complete preprocessing pipeline.
 
-cluster_label
+---
 
-The notebook reports that Cluster 3 contains the largest group, with 12,618 hotel records.
+# 🐳 Docker
 
-9. Model Artifacts for Recommendation
+The notebook generates:
 
-The notebook saves the following files:
+```text
+requirements.txt
+Dockerfile
+app.py
+random_forest_model.pkl
+```
 
-kmeans_model.pkl
-scaler.pkl
-hotel_features_with_clusters.csv
+### Build
 
-These artifacts are later consumed by the Streamlit application.
-
-10. Streamlit Web Application
-
-The project creates:
-
-streamlit_app.py
-
-The application provides a user-facing hotel recommendation interface.
-
-User Inputs
-
-The sidebar allows the user to select:
-
-Number of Days
-
-Desired Price per Night
-
-Preferred Hotel Name
-
-Preferred Destination
-
-The application:
-
-Receives the user's preferences.
-
-Applies one-hot encoding.
-
-Aligns the input with the training feature columns.
-
-Scales the numerical fields.
-
-Predicts the user's K-Means cluster.
-
-Filters hotels from that cluster.
-
-Applies hotel/destination preferences.
-
-Displays up to five unique recommendations.
-
-Run the application
-
-streamlit run streamlit_app.py
-
-Streamlit Recommendation Flow
-
-User Preferences
-      ↓
-Input Preprocessing
-      ↓
-One-Hot Encoding
-      ↓
-Numerical Scaling
-      ↓
-K-Means Cluster Prediction
-      ↓
-Filter Hotels
-      ↓
-Apply Name/Destination Preferences
-      ↓
-Display Recommendations
-
-Current Limitations and Future Improvements
-
-The notebook identifies several areas that can be improved.
-
-Flight Prediction
-
-The nearly perfect regression metrics should be investigated for:
-
-data leakage
-
-target-related information
-
-dataset-specific relationships
-
-generalization to unseen data
-
-Recommended improvements:
-
-cross-validation
-
-new unseen test data
-
-stronger preprocessing pipeline
-
-explicit model feature schema
-
-model monitoring
-
-Flask API
-
-The current API expects the input structure to match the trained model features.
-
-A stronger production implementation should:
-
-perform preprocessing inside the API
-
-validate input fields
-
-store and load the feature schema
-
-return clearer validation errors
-
-add health checks and logging
-
-Gender Classification
-
-The current model has low predictive performance:
-
-Accuracy = 0.47
-F1 = 0.47
-
-Possible improvements include:
-
-additional relevant features
-
-feature engineering
-
-alternative algorithms
-
-stronger validation
-
-The notebook specifically suggests investigating whether information from the dropped name field could provide useful signals, although using such information would require careful consideration of privacy, fairness, and responsible use.
-
-Hotel Recommendation
-
-The current recommendation system is based on K-Means similarity rather than user interaction history.
-
-Recommended improvements:
-
-ratings
-
-booking history
-
-click behavior
-
-collaborative filtering
-
-hybrid recommendation
-
-personalized ranking
-
-The Streamlit implementation also relies on row/index alignment between the processed hotel data and the original hotel dataset. A unique hotel identifier would make this linkage more robust.
-
-Project Files
-
-The notebook generates or uses the following major project files:
-
-.
-├── flights.csv
-├── users.csv
-├── hotels.csv
-│
-├── random_forest_model.pkl
-├── requirements.txt
-├── app.py
-├── Dockerfile
-│
-├── deployment.yaml
-├── service.yaml
-│
-├── kmeans_model.pkl
-├── scaler.pkl
-├── hotel_features_with_clusters.csv
-│
-└── streamlit_app.py
-
-Technology Stack
-
-Component
-
-Technology
-
-Programming Language
-
-Python
-
-Notebook Environment
-
-Google Colab
-
-Data Processing
-
-Pandas
-
-Numerical Computing
-
-NumPy
-
-Machine Learning
-
-Scikit-learn
-
-Regression
-
-Random Forest Regressor
-
-Classification
-
-Random Forest Classifier
-
-Recommendation
-
-K-Means
-
-Visualization
-
-Matplotlib, Seaborn
-
-API
-
-Flask
-
-Model Persistence
-
-Joblib
-
-Experiment Tracking
-
-MLflow
-
-Containerization
-
-Docker
-
-Deployment
-
-Kubernetes
-
-Web Application
-
-Streamlit
-
-Google Colab Execution Flow
-
-Run the notebook in this order:
-
-1. Load flights.csv
-        ↓
-2. Explore and preprocess flight data
-        ↓
-3. Feature engineering
-        ↓
-4. Train/test split
-        ↓
-5. Train RandomForestRegressor
-        ↓
-6. Evaluate regression model
-        ↓
-7. Save random_forest_model.pkl
-        ↓
-8. Create Flask API
-        ↓
-9. Generate Docker files
-        ↓
-10. Prepare Kubernetes YAML
-        ↓
-11. Install and configure MLflow
-        ↓
-12. Track regression experiment
-        ↓
-13. Train gender classifier
-        ↓
-14. Evaluate classification model
-        ↓
-15. Load hotel and user datasets
-        ↓
-16. Build K-Means recommendation model
-        ↓
-17. Save recommendation artifacts
-        ↓
-18. Build Streamlit application
-
-MLOps Scope in the Current Notebook
-
-The notebook directly implements or generates:
-
-Implemented
-
-Model training
-
-Model evaluation
-
-Flask REST API
-
-Docker configuration
-
-Kubernetes Deployment/Service configuration
-
-MLflow experiment/model tracking
-
-Streamlit recommendation application
-
-Model artifact persistence
-
-Not Fully Implemented in the Notebook
-
-Apache Airflow: The notebook refers to integrating MLflow with a model-training/evaluation DAG, but it does not provide a complete runnable Airflow DAG in the uploaded notebook.
-
-Jenkins: The uploaded notebook does not contain a Jenkinsfile or a complete Jenkins CI/CD pipeline.
-
-These can be added as the next MLOps layer when moving the project from the Colab implementation to a full CI/CD production workflow.
-
-How to Run the Main Components
-
-Regression Notebook
-
-Open the notebook in Google Colab and execute the cells sequentially.
-
-Flask
-
-python app.py
-
-API:
-
-http://localhost:5000/predict
-
-Docker
-
+```bash
 docker build -t flight-price-predictor .
+```
+
+### Run
+
+```bash
 docker run -p 5000:5000 flight-price-predictor
+```
 
-Kubernetes
+The Docker image exposes:
 
+```text
+5000
+```
+
+---
+
+# ☸️ Kubernetes
+
+The project prepares Kubernetes resources for scalable model serving.
+
+### Deployment
+
+```text
+Application: flight-price-predictor
+Replicas: 3
+Container Port: 5000
+```
+
+### Service
+
+```text
+Type: NodePort
+Port: 5000
+Target Port: 5000
+```
+
+### Deploy
+
+```bash
 kubectl apply -f deployment.yaml
 kubectl apply -f service.yaml
+```
 
-MLflow
+### Verify
 
+```bash
+kubectl get deployments
+kubectl get pods
+kubectl get services
+```
+
+Architecture:
+
+```text
+             Kubernetes Cluster
+                    │
+        ┌───────────┼───────────┐
+        ▼           ▼           ▼
+      Pod 1       Pod 2       Pod 3
+        │           │           │
+        └───────────┼───────────┘
+                    │
+              Service :5000
+```
+
+---
+
+# 📦 MLflow
+
+MLflow is used for experiment and model tracking.
+
+### Logged information
+
+**Parameters**
+```text
+random_state = 42
+```
+
+**Metrics**
+- MAE
+- MSE
+- R²
+
+**Model**
+- Random Forest model artifact
+
+### MLflow Model
+
+The notebook registers:
+
+```text
+RandomForestFlightPricePredictor
+```
+
+### Start MLflow
+
+```bash
 mlflow ui --host 0.0.0.0 --port 5001
+```
 
-Streamlit
+MLflow is used to track the regression experiment and model version.
 
-streamlit run streamlit_app.py
+---
 
-Key Learning Outcomes
+# 🎨 Streamlit Application
 
-This project demonstrates the transition from a traditional notebook-based ML workflow to an application-oriented machine learning system.
+The recommendation system includes a Streamlit web interface.
 
-The overall lifecycle is:
+### User Inputs
 
-Data
-  ↓
-Exploration
-  ↓
+The app provides controls for:
+
+- Number of days
+- Desired price per night
+- Preferred hotel name
+- Preferred destination
+
+### Application Workflow
+
+```text
+User
+ ↓
+Streamlit UI
+ ↓
 Preprocessing
-  ↓
+ ↓
+K-Means Prediction
+ ↓
+Hotel Filtering
+ ↓
+Top Recommendations
+```
+
+### Run
+
+```bash
+streamlit run streamlit_app.py
+```
+
+---
+
+# 📁 Project Structure
+
+```text
+travel-mlops-capstone/
+│
+├── 📓 Untitled29 (1)(1).ipynb
+│
+├── 📊 flights.csv
+├── 👤 users.csv
+├── 🏨 hotels.csv
+│
+├── 🤖 random_forest_model.pkl
+│
+├── 🧠 kmeans_model.pkl
+├── 📏 scaler.pkl
+├── 📄 hotel_features_with_clusters.csv
+│
+├── 🌐 app.py
+├── 🎨 streamlit_app.py
+│
+├── 🐳 Dockerfile
+├── 📦 requirements.txt
+│
+├── ☸️ deployment.yaml
+├── 🔌 service.yaml
+│
+└── 📘 README.md
+```
+
+---
+
+# 🧪 Google Colab Setup
+
+The notebook is designed to run in Google Colab.
+
+## 1. Open the notebook
+
+Upload the notebook to:
+
+👉 [Google Colab](https://colab.research.google.com/)
+
+## 2. Upload datasets
+
+Make sure the following files are available:
+
+```text
+flights.csv
+users.csv
+hotels.csv
+```
+
+## 3. Run the notebook
+
+Run the cells in order:
+
+```text
+Data Loading
+    ↓
+Data Exploration
+    ↓
+Preprocessing
+    ↓
 Feature Engineering
-  ↓
+    ↓
 Model Training
-  ↓
-Model Evaluation
-  ↓
-Model Persistence
-  ↓
-Experiment Tracking
-  ↓
-REST API
-  ↓
+    ↓
+Evaluation
+    ↓
+Model Saving
+    ↓
+Flask API
+    ↓
 Docker
-  ↓
+    ↓
 Kubernetes
-  ↓
-User-Facing Application
+    ↓
+MLflow
+    ↓
+Classification
+    ↓
+Recommendation
+    ↓
+Streamlit
+```
 
-The project therefore demonstrates both machine learning development and the foundations of production-oriented ML engineering/MLOps.
+---
 
-Future MLOps Extensions
+# 💻 Local Setup
 
-To complete the remaining production workflow, the project can be extended with:
+## Clone the repository
 
+```bash
+git clone https://github.com/<your-username>/<your-repository>.git
+cd <your-repository>
+```
+
+## Create environment
+
+```bash
+python -m venv venv
+```
+
+### Windows
+
+```bash
+venv\Scripts\activate
+```
+
+### Linux / macOS
+
+```bash
+source venv/bin/activate
+```
+
+## Install dependencies
+
+```bash
+pip install -r requirements.txt
+```
+
+---
+
+# 🌐 API Usage
+
+Start the Flask application:
+
+```bash
+python app.py
+```
+
+Then send a POST request:
+
+```bash
+curl -X POST http://127.0.0.1:5000/predict \
+-H "Content-Type: application/json" \
+-d '{
+  "time": 1.76,
+  "distance": 676.53
+}'
+```
+
+Or use Postman / Thunder Client.
+
+---
+
+# ☸️ Kubernetes Deployment
+
+After building the Docker image:
+
+```bash
+docker build -t flight-price-predictor .
+```
+
+Apply Kubernetes resources:
+
+```bash
+kubectl apply -f deployment.yaml
+kubectl apply -f service.yaml
+```
+
+Check the deployment:
+
+```bash
+kubectl get pods
+kubectl get deployments
+kubectl get services
+```
+
+---
+
+# ✅ Current Implementation Status
+
+| Component | Status |
+|---|:---:|
+| Flight Price Regression | ✅ |
+| Data Preprocessing | ✅ |
+| Feature Engineering | ✅ |
+| Regression Evaluation | ✅ |
+| Model Persistence | ✅ |
+| Flask REST API | ✅ |
+| Docker Configuration | ✅ |
+| Kubernetes YAML | ✅ |
+| MLflow Tracking | ✅ |
+| Gender Classification | ✅ |
+| Hotel Clustering | ✅ |
+| Streamlit Recommendation App | ✅ |
+| Apache Airflow DAG | ⚠️ Not implemented in current notebook |
+| Jenkins CI/CD Pipeline | ⚠️ Not implemented in current notebook |
+
+> The last two components are part of the broader MLOps capstone scope but are not implemented as complete runnable components in the current notebook.
+
+---
+
+# ⚠️ Limitations
+
+<details>
+<summary><b>Flight price model</b></summary>
+
+The reported `R² = 1.00` and zero error metrics are unusually strong. The notebook itself recommends checking for data leakage and validating the approach on unseen data.
+
+</details>
+
+<details>
+<summary><b>Flask API</b></summary>
+
+The current API assumes the request follows the model-ready feature structure. Preprocessing should be integrated into the serving pipeline for a stronger production implementation.
+
+</details>
+
+<details>
+<summary><b>Gender classification</b></summary>
+
+The current model has relatively weak performance, with an F1 score of `0.47`. Additional meaningful features or alternative modeling approaches would be needed for better predictive performance.
+
+</details>
+
+<details>
+<summary><b>Hotel recommendation</b></summary>
+
+The current approach is clustering-based and does not use explicit user ratings, clicks, bookings, or collaborative filtering.
+
+</details>
+
+---
+
+# 🔮 Future Improvements
+
+### Machine Learning
+- Cross-validation
+- Hyperparameter tuning
+- Better feature selection
+- Model comparison
+- Unseen-data validation
+- Model monitoring
+
+### Recommendation
+- Collaborative filtering
+- Hybrid recommendation
+- User history
+- Ratings and feedback
+- Personalized ranking
+
+### API
+- Input validation
+- Authentication
+- Logging
+- Health endpoint
+- Preprocessing pipeline
+- API documentation
+
+### MLOps
+
+```text
 GitHub
    ↓
 Jenkins CI/CD
    ↓
-Docker Image Build
+Docker Build
    ↓
 Container Registry
    ↓
-Kubernetes Deployment
+Kubernetes
+```
 
-and:
+### Automated Training
 
+```text
 Apache Airflow
       ↓
-Scheduled Data Processing
+Data Processing
       ↓
 Model Training
       ↓
 Evaluation
       ↓
-MLflow Tracking
+MLflow
       ↓
 Model Registry
       ↓
 Deployment
+```
 
-Additional improvements can include automated testing, model monitoring, data drift detection, automated retraining, API authentication, centralized logging, and cloud deployment.
+---
 
-Conclusion
+# 🧠 Key Learnings
 
-This Travel & Tourism capstone combines three machine learning use cases with model serving and deployment technologies.
+This project demonstrates the transition from:
 
-The project covers:
+```text
+Notebook-Based ML
+```
 
-Flight price prediction
+to:
 
-Gender classification
+```text
+Production-Oriented ML System
+```
 
-Hotel recommendation
+The lifecycle covered is:
 
-Flask REST API
+```text
+Data
+ ↓
+EDA
+ ↓
+Preprocessing
+ ↓
+Feature Engineering
+ ↓
+Model Training
+ ↓
+Evaluation
+ ↓
+Model Persistence
+ ↓
+Experiment Tracking
+ ↓
+API Serving
+ ↓
+Containerization
+ ↓
+Scalable Deployment
+ ↓
+User Application
+```
 
-Docker containerization
+---
 
-Kubernetes deployment
+# 🛠️ Technology Stack
 
-MLflow tracking
+| Layer | Technology |
+|---|---|
+| Language | Python |
+| Development | Google Colab |
+| Data Processing | Pandas |
+| Numerical Computing | NumPy |
+| ML Framework | Scikit-learn |
+| Regression | Random Forest Regressor |
+| Classification | Random Forest Classifier |
+| Recommendation | K-Means |
+| Visualization | Matplotlib / Seaborn |
+| Model Persistence | Joblib |
+| API | Flask |
+| Tracking | MLflow |
+| Containerization | Docker |
+| Orchestration | Kubernetes |
+| UI | Streamlit |
 
-Streamlit application
+---
 
-The notebook provides the core implementation for the complete machine learning workflow and the deployment foundation, while Airflow and Jenkins remain natural extensions for completing the end-to-end automated MLOps lifecycle.
+# 📚 Project Highlights
+
+✅ Three machine learning use cases in one project  
+✅ Flight price regression with feature engineering  
+✅ User classification workflow  
+✅ Hotel recommendation using clustering  
+✅ Flask model serving  
+✅ Docker containerization  
+✅ Kubernetes deployment configuration  
+✅ MLflow experiment and model tracking  
+✅ Interactive Streamlit recommendation app  
+✅ Google Colab development workflow  
+
+---
+
+## 👨‍💻 Author
+
+**Dhananjay Kumar Sharma**
+
+Master of Computer Applications | Generative AI & Agentic AI
+
+Interested in:
+
+- Data Science
+- Machine Learning
+- Deep Learning
+- Generative AI
+- MLOps
+- AI Engineering
+
+---
+
+## ⭐ If you find this project useful
+
+Give the repository a ⭐ and feel free to explore, improve, and extend the implementation.
+
+---
+
+## 📄 License
+
+Add your preferred license here, for example:
+
+```text
+MIT License
+```
